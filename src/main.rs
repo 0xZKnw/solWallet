@@ -9,6 +9,16 @@ use solana_sdk::pubkey::Pubkey;
 use std::io;
 use std::str::FromStr;
 
+fn get_balance(rpc: &RpcClient, usr_pubkey: Pubkey) -> f64 {
+    match rpc.get_account(&usr_pubkey) {
+        Ok(account) => {
+            let sol_balance: f64 = account.lamports as f64 / LAMPORTS_PER_SOL as f64;
+            sol_balance
+        },
+        Err(_) => 0.0
+    }
+}
+
 fn main() {
     let rpc = RpcClient::new_with_commitment("https://api.devnet.solana.com".to_string(), CommitmentConfig::confirmed(),);
     let usr = Keypair::new();
@@ -16,7 +26,8 @@ fn main() {
 
     loop {
         println!("Your address : {}", usr_pubkey.to_string());
-        println!("1 : tx\n2 : request airdrop\n3 : get balance");
+        println!("{} sol", get_balance(&rpc, usr_pubkey));
+        println!("1 : tx\n2 : request airdrop");
         let mut input_string = String::new();
         io::stdin().read_line(&mut input_string).expect("error reading input");
         let input = input_string.trim();
@@ -68,13 +79,6 @@ fn main() {
                 },
                 Err(e) => println!("erreur airdrop : {}", e),
             };
-        }
-    
-        else if input == "3" {
-            let balance = rpc.get_account(&usr_pubkey).unwrap().lamports;
-            let sol_balance: f64 = balance as f64 / LAMPORTS_PER_SOL as f64;
-    
-            println!("{} : {} sol", usr_pubkey.to_string(), sol_balance);
         }
     }
 

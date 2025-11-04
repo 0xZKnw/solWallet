@@ -1,8 +1,8 @@
-use solana_client::rpc_client::{self, RpcClient};
+use solana_client::rpc_client::RpcClient;
 use solana_sdk::system_instruction;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::native_token::LAMPORTS_PER_SOL;
-use solana_sdk::signature::{Keypair, Signer};
+use solana_sdk::signature::{Keypair, Signer, read_keypair_file};
 use solana_sdk::transaction::Transaction;
 use solana_sdk::pubkey::Pubkey;
 
@@ -72,7 +72,7 @@ fn get_airdrop(rpc: &RpcClient, usr: &Keypair) {
 
 fn main() {
     let rpc = RpcClient::new_with_commitment("https://api.devnet.solana.com".to_string(), CommitmentConfig::confirmed(),);
-    let usr = Keypair::new();
+    let usr = read_keypair_file(&format!("{}/.config/solana/id.json", std::env::var("USERPROFILE").unwrap())).expect("please execute : solana-keygen new in your terminal");
     let usr_pubkey = Signer::pubkey(&usr);
 
     loop {
